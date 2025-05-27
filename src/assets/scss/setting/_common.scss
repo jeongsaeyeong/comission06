@@ -1,0 +1,28 @@
+button,
+a {
+    cursor: pointer;
+    background-color: var(--none);
+}
+
+body {
+    background-color: var(--black);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#root {
+    width: 100%;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+.none {
+    display: none !important;
+}
+
+input {
+    outline: none;
+}
