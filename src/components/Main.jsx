@@ -75,7 +75,7 @@ const Main = () => {
                             <iframe
                                 key={embedId}
                                 width="100%"
-                                height="400"
+                                height="550"
                                 src={`https://www.youtube.com/embed/${embedId}`}
                                 title="YouTube video"
                                 frameBorder="0"
