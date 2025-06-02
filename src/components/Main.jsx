@@ -1,112 +1,101 @@
-import React from 'react'
-import Start from '../assets/img/A_start.png'
-import img01 from '../assets/img/01_INCHEON.png'
-import img02 from '../assets/img/02_KUALA LUNPUR.png'
-import img03 from '../assets/img/03_BALI.png'
-import img04 from '../assets/img/04_SURABAYA.png'
-import img05 from '../assets/img/05_JAKARTA-1.png'
-import img06 from '../assets/img/06_SINGAPORE.png'
-import img07 from '../assets/img/07_BANGKOK.png'
-import Alone from '../assets/img/B_alone.png'
-import img08 from '../assets/img/08_KAOHSIUNG.png'
-import img09 from '../assets/img/09_HONGKONG.png'
-import img10 from '../assets/img/10_BUSAN.png'
-import img11 from '../assets/img/11_OSAKA.png'
-import img12 from '../assets/img/12_TOKYO.png'
-import Key from '../assets/img/D_key.png'
-import img13 from '../assets/img/13_MANILA.png'
-import img14 from '../assets/img/14_DAEJEON.png'
-import img15 from '../assets/img/15_KWANGJU.png'
-import img16 from '../assets/img/16_DAEGU.png'
-import img17 from '../assets/img/17_SYDNEY.png'
-import img18 from '../assets/img/18_MEBOURNE.png'
-import img19 from '../assets/img/19_AUCKLAND.png'
-import Air from '../assets/img/C_airplane.png'
-import img20 from '../assets/img/20_LA.png'
-import img21 from '../assets/img/21_NEWYORK.png'
-import img22 from '../assets/img/22_YOKOHAMA.png'
-import img23 from '../assets/img/23_JAKARTA.png'
-import img24 from '../assets/img/24_SEOUL.png'
+import React, { useState } from 'react';
+import { regionData } from './regionData';
+import { TwitterTweetEmbed } from 'react-twitter-embed';
 
 const Main = () => {
-    const top = [
-        { img: Start },
-        { img: img01 },
-        { img: img02 },
-        { img: img03 },
-        { img: img04 },
-        { img: img05 },
-        { img: img06 },
-        { img: img07 },
-        { img: Alone },
-    ]
+    const [embedType, setEmbedType] = useState(''); // 'twitter' or 'youtube'
+    const [embedId, setEmbedId] = useState('');
+    const [clickIndexMap, setClickIndexMap] = useState({});
 
-    const right = [
-        { img: img08 },
-        { img: img09 },
-        { img: img10 },
-        { img: img11 },
-        { img: img12 },
-    ]
+    const handleClick = (rounds, regionKey) => {
+        console.log(rounds)
+        let currentIndex = clickIndexMap[regionKey] || 0;
+        let nextIndex = currentIndex;
 
-    const left = [
-        { img: img24 },
-        { img: img23 },
-        { img: img22 },
-        { img: img21 },
-        { img: img20 },
-    ]
+        for (let i = 0; i < rounds.length; i++) {
+            const idx = (currentIndex + i) % rounds.length;
+            const candidate = rounds[idx];
 
-    const bottom = [
-        { img: Key },
-        { img: img19 },
-        { img: img18 },
-        { img: img17 },
-        { img: img16 },
-        { img: img15 },
-        { img: img14 },
-        { img: img13 },
-        { img: Air },
-    ]
+            if (!candidate.url) continue;
+
+            if (candidate.url.includes('status/')) {
+                const match = candidate.url.match(/status\/(\d+)/);
+                if (match) {
+                    setEmbedType('x');
+                    setEmbedId(match[1]);
+                    nextIndex = (idx + 1) % rounds.length;
+                    break;
+                }
+            } else if (candidate.url.includes('youtu')) {
+                const match = candidate.url.match(/(?:youtu\.be\/|v=)([a-zA-Z0-9_-]{11})/);
+                if (match) {
+                    setEmbedType('youtube');
+                    setEmbedId(match[1]);
+                    nextIndex = (idx + 1) % rounds.length;
+                    break;
+                }
+            }
+        }
+
+        setClickIndexMap(prev => ({
+            ...prev,
+            [regionKey]: nextIndex,
+        }));
+    };
+
+    const renderRegion = (regionArray, regionKey) => (
+        regionArray.map((item, key) => (
+            <div
+                className={`img-wrapper ${item.class ? item.class : ''}`}
+                key={key}
+                onClick={() => handleClick(item.rounds, `${regionKey}-${key}`)}
+            >
+                <img src={item.image} alt={item.name} />
+            </div>
+        ))
+    );
 
     return (
         <div className='Main_wrap'>
             <div className="box">
                 <div className="first">
-                    {top.map((item, key) => (
-                        <div className="img-wrapper" key={key}>
-                            <img src={item.img} alt="" />
-                        </div>
-                    ))}
+                    {renderRegion(regionData.top, 'top')}
                 </div>
 
                 <div className="center">
                     <div className="left">
-                        {left.map((item, key) => (
-                            <div className="img-wrapper" key={key}>
-                                <img src={item.img} alt="" />
-                            </div>
-                        ))}
+                        {renderRegion(regionData.left, 'left')}
                     </div>
+
+                    <div className="twitter-embed">
+                        {embedType === 'x' && embedId && (
+                            <TwitterTweetEmbed key={embedId} tweetId={embedId} />
+                        )}
+                        {embedType === 'youtube' && embedId && (
+                            <iframe
+                                key={embedId}
+                                width="100%"
+                                height="400"
+                                src={`https://www.youtube.com/embed/${embedId}`}
+                                title="YouTube video"
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                            ></iframe>
+                        )}
+                    </div>
+
                     <div className="right">
-                        {right.map((item, key) => (
-                            <div className="img-wrapper" key={key}>
-                                <img src={item.img} alt="" />
-                            </div>
-                        ))}
+                        {renderRegion(regionData.right, 'right')}
                     </div>
                 </div>
 
                 <div className="bottom">
-                    {bottom.map((item, key) => (
-                        <div className="img-wrapper" key={key}>
-                            <img src={item.img} alt="" />
-                        </div>
-                    ))}
+                    {renderRegion(regionData.bottom, 'bottom')}
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default Main
+export default Main;
