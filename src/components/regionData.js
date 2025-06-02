@@ -357,7 +357,7 @@ export const regionData = {
                 {
                     "round": "1회차",
                     "date": "250222",
-                    "url": "https://x.com/yoohyuks/status/1893312505679589426"
+                    "url": null
                 }
             ]
         }
